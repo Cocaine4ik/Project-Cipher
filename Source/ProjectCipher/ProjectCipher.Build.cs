@@ -10,5 +10,11 @@ public class ProjectCipher : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new[]
 			{ "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
+
+		PublicIncludePaths.AddRange(new[]
+		{
+			"ProjectCipher/Public/Player",
+			"ProjectCipher/Public/Components"
+		});
 	}
 }
