@@ -13,4 +13,7 @@ UCLASS()
 class PROJECTCIPHER_API APCPlayerController : public APlayerController
 {
     GENERATED_BODY()
+
+public:
+    
 };

@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "PCBaseCharacter.generated.h"
 
+class UPCTelekinesisComponent;
+
 UCLASS()
 class APCBaseCharacter : public ACharacter
 {
@@ -21,13 +23,18 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     class UCameraComponent* CameraComponent;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    class UPCTelekinesisComponent* TelekinesisComponent;
+    
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
     float TurnRateGamepad;
 
 private:
+    
     void MoveForward(float Value);
     void MoveRight(float Value);
+    void Telekinesis();
 
 public:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

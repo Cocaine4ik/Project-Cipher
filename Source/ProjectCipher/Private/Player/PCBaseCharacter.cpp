@@ -4,9 +4,11 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/PCTelekinesisComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/PCTelekinesisComponent.h"
 
 APCBaseCharacter::APCBaseCharacter()
 {
@@ -40,6 +42,8 @@ APCBaseCharacter::APCBaseCharacter()
     // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
     CameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+    TelekinesisComponent = CreateDefaultSubobject<UPCTelekinesisComponent>(TEXT("TelekinesisComponent"));
+    
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
@@ -50,6 +54,7 @@ void APCBaseCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
     PlayerInputComponent->BindAxis("MoveRight", this, &APCBaseCharacter::MoveRight);
     PlayerInputComponent->BindAxis("TurnRight", this, &APawn::AddControllerYawInput);
     PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+    PlayerInputComponent->BindAction("Telekinesis", IE_Pressed, TelekinesisComponent, &UPCTelekinesisComponent::Telekinesis);
 }
 
 void APCBaseCharacter::MoveForward(float Value)
