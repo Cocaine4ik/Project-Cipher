@@ -17,8 +17,17 @@ public:
     UPCTelekinesisComponent();
 
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
     float FOVZoomAngle = 60.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
+    float ZoomDuration = 1.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
+    float ZoomFrequency = 0.1f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
+    UAnimMontage* PullAnimation;
     
     // Called when the game starts
     virtual void BeginPlay() override;
@@ -34,10 +43,14 @@ private:
     bool bZoom = false;
     
     float DefaultCameraFOV = 90.0f;
-
+    float TargetCameraFOV;
+    float InitialCameraFOV;
+    FTimerHandle ZoomTimerHandle;
+    float StartTime;
     
-    void Zoom();
+    void Zoom(bool bEnabled);
+    void ZoomUpdate();
     void Pull();
     void Push();
-
+    
 };
