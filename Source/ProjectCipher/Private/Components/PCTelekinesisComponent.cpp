@@ -3,6 +3,8 @@
 
 #include "Components/PCTelekinesisComponent.h"
 #include "PCBaseCharacter.h"
+#include "Kismet/KismetSystemLibrary.h"
+
 
 DEFINE_LOG_CATEGORY_STATIC(LogTelekinesisComponent, All, All)
 
@@ -31,33 +33,39 @@ void UPCTelekinesisComponent::BeginPlay()
 void UPCTelekinesisComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-    // ...
+    /*
+    if(GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green,
+            FString::Printf(TEXT("Telekinesis: %s"), bTelekinesis ? TEXT("True") : TEXT("False")));
+    
+    const auto Controller = GetPlayerController();
+    const auto Start = Controller->PlayerCameraManager->GetCameraLocation();
+    const auto End = Controller->PlayerCameraManager->GetActorForwardVector() * 1000;
+    DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, -1.0f, 0, 2.0f);
+    */
+    DetectTelekineticObject();
 }
 
 void UPCTelekinesisComponent::Telekinesis()
 {
-    bTelekinesis = true;
-    Zoom(true);
-
+    bTelekinesis ? Push() : Pull();
 }
 
 void UPCTelekinesisComponent::Zoom(bool bEnabled)
 {
-    if(!bTelekinesis) return;
+    const auto Character = GetBaseCharacter();
+    if(!Character) return;
     
-    const auto Pawn = Cast<APawn>(GetOwner());
-    if(!Pawn) return;
-    
-    const auto Controller = Cast<APlayerController>(Pawn->GetController());
+    const auto Controller = GetPlayerController();
     if(!Controller || !Controller->PlayerCameraManager) return;
     
-    DefaultCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
     
     // Controller->PlayerCameraManager->SetFOV(FOVZoomAngle);
 
     if (bEnabled)
     {
+        DefaultCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
+        
         bZoom = true;
         TargetCameraFOV = FOVZoomAngle;
         InitialCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
@@ -85,10 +93,10 @@ void UPCTelekinesisComponent::ZoomUpdate()
     const float Alpha = FMath::Clamp((CurrentTime - StartTime) / ZoomDuration, 0.0f, 1.0f);
     const float NewCameraFOV = FMath::Lerp(InitialCameraFOV, TargetCameraFOV, Alpha);
     
-    const auto Pawn = Cast<APawn>(GetOwner());
-    if(!Pawn) return;
+    const auto Character = GetBaseCharacter();
+    if(!Character) return;
 
-    const auto Controller = Cast<APlayerController>(Pawn->GetController());
+    const auto Controller = GetPlayerController();
     if(!Controller || !Controller->PlayerCameraManager) return;
     
     Controller->PlayerCameraManager->SetFOV(NewCameraFOV);
@@ -103,11 +111,50 @@ void UPCTelekinesisComponent::ZoomUpdate()
 
 void UPCTelekinesisComponent::Pull()
 {
-    if(!bTelekinesis) return;
-    const auto Character = Cast<APCBaseCharacter>(GetOwner());
-    Character->GetMesh()->PlayAnimation(PullAnimation, false);
+    if (!GetBaseCharacter()) return;
+    GetBaseCharacter()->PlayAnimMontage(PullAnimation);
+    Zoom(true);
+    
 }
 
 void UPCTelekinesisComponent::Push()
 {
+    if(!bTelekinesis || !GetBaseCharacter()) return;
+    GetBaseCharacter()->PlayAnimMontage(PushAnimation);
+    Zoom(false);
+}
+
+void UPCTelekinesisComponent::DetectTelekineticObject()
+{
+    if(!GetWorld()) return;
+    
+    const auto Controller = GetPlayerController();
+    if(!Controller || !Controller->PlayerCameraManager) return;
+    
+    const auto StartPoint = Controller->PlayerCameraManager->GetCameraLocation();
+    const auto EndPoint = Controller->PlayerCameraManager->GetActorForwardVector() * DetectionDistance;
+
+    FHitResult Result;
+    TArray<AActor*> ActorsToIgnore;
+    ActorsToIgnore.Add(GetOwner());
+    
+    const bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), StartPoint, EndPoint, DetectionRadius,
+        DetectionObjectTypes, false, ActorsToIgnore, EDrawDebugTrace::None, Result, true,
+        FLinearColor::Red, FLinearColor::Red, 2.0f);
+
+    if(GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green,
+            FString::Printf(TEXT("Hit: %s"), bHit ? TEXT("True") : TEXT("False")));
+    
+}
+
+APCBaseCharacter* UPCTelekinesisComponent::GetBaseCharacter() const
+{
+    return Cast<APCBaseCharacter>(GetOwner());
+}
+
+APlayerController* UPCTelekinesisComponent::GetPlayerController() const
+{
+    if (!GetBaseCharacter()) return nullptr; 
+    return Cast<APlayerController>(GetBaseCharacter()->GetController());
 }

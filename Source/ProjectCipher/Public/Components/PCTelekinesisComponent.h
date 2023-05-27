@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Player/PCBaseCharacter.h"
 #include "PCTelekinesisComponent.generated.h"
 
 
@@ -28,6 +29,24 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
     UAnimMontage* PullAnimation;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
+    UAnimMontage* PushAnimation;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
+    float DetectionDistance = 2000.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
+    float DetectionRadius = 100.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
+    TArray<TEnumAsByte<EObjectTypeQuery>> DetectionObjectTypes;
+    
+    UFUNCTION(BlueprintCallable)
+    bool IsTelekinesis() const { return bTelekinesis; }
+    
+    UFUNCTION(BlueprintCallable)
+    void SetTelekinesis(bool Value) { bTelekinesis = Value; }
     
     // Called when the game starts
     virtual void BeginPlay() override;
@@ -52,5 +71,9 @@ private:
     void ZoomUpdate();
     void Pull();
     void Push();
+
+    void DetectTelekineticObject();
     
+    APCBaseCharacter* GetBaseCharacter() const;
+    APlayerController* GetPlayerController() const;
 };

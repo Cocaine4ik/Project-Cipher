@@ -69,6 +69,7 @@ void APCBaseCharacter::MoveForward(float Value)
         const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
         AddMovementInput(Direction, Value);
     }
+    
 }
 
 void APCBaseCharacter::MoveRight(float Value)
