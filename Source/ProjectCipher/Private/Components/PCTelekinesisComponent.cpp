@@ -46,24 +46,29 @@ void UPCTelekinesisComponent::Telekinesis()
 void UPCTelekinesisComponent::Zoom(bool bEnabled)
 {
     const auto Character = GetBaseCharacter();
-    if(!Character) return;
-    
+    if (!Character)
+    {
+        return;
+    }
+
     const auto Controller = GetPlayerController();
-    if(!Controller || !Controller->PlayerCameraManager) return;
-    
-    
+    if (!Controller || !Controller->PlayerCameraManager)
+    {
+        return;
+    }
+
     // Controller->PlayerCameraManager->SetFOV(FOVZoomAngle);
 
     if (bEnabled)
     {
         DefaultCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
-        
+
         bZoom = true;
         TargetCameraFOV = FOVZoomAngle;
         InitialCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
 
         StartTime = GetWorld()->GetTimeSeconds();
-        
+
         GetWorld()->GetTimerManager().SetTimer(ZoomTimerHandle, this, &UPCTelekinesisComponent::ZoomUpdate, ZoomFrequency, true);
     }
     else
@@ -73,7 +78,7 @@ void UPCTelekinesisComponent::Zoom(bool bEnabled)
         InitialCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
 
         StartTime = GetWorld()->GetTimeSeconds();
-        
+
         GetWorld()->GetTimerManager().SetTimer(ZoomTimerHandle, this, &UPCTelekinesisComponent::ZoomUpdate, ZoomFrequency, true);
 
     }
@@ -84,18 +89,24 @@ void UPCTelekinesisComponent::ZoomUpdate()
     const float CurrentTime = GetWorld()->GetTimeSeconds();
     const float Alpha = FMath::Clamp((CurrentTime - StartTime) / ZoomDuration, 0.0f, 1.0f);
     const float NewCameraFOV = FMath::Lerp(InitialCameraFOV, TargetCameraFOV, Alpha);
-    
+
     const auto Character = GetBaseCharacter();
-    if(!Character) return;
+    if (!Character)
+    {
+        return;
+    }
 
     const auto Controller = GetPlayerController();
-    if(!Controller || !Controller->PlayerCameraManager) return;
-    
+    if (!Controller || !Controller->PlayerCameraManager)
+    {
+        return;
+    }
+
     Controller->PlayerCameraManager->SetFOV(NewCameraFOV);
-    
+
     UE_LOG(LogTelekinesisComponent, Display, TEXT("NewCameraFOV: %f"), NewCameraFOV);
-    
-    if(Alpha >= 1.0f)
+
+    if (Alpha >= 1.0f)
     {
         GetWorld()->GetTimerManager().ClearTimer(ZoomTimerHandle);
     }
@@ -103,51 +114,61 @@ void UPCTelekinesisComponent::ZoomUpdate()
 
 void UPCTelekinesisComponent::Pull()
 {
-    if (!GetBaseCharacter()) return;
+    if (!GetBaseCharacter() && !CurrentProp)
+    {
+        return;
+    }
     GetBaseCharacter()->PlayAnimMontage(PullAnimation);
     Zoom(true);
-    
+
+    CurrentProp->Highlight(false);
+    CurrentProp->Pull();
 }
 
 void UPCTelekinesisComponent::Push()
 {
-    if(!bTelekinesis || !GetBaseCharacter()) return;
+    if (!bTelekinesis || !GetBaseCharacter())
+    {
+        return;
+    }
     GetBaseCharacter()->PlayAnimMontage(PushAnimation);
     Zoom(false);
 }
 
 void UPCTelekinesisComponent::DetectTelekineticObject()
 {
-    if(!GetWorld()) return;
-    
+    if (!GetWorld())
+    {
+        return;
+    }
+
     const auto Controller = GetPlayerController();
-    if(!Controller || !Controller->PlayerCameraManager) return;
-    
+    if (!Controller || !Controller->PlayerCameraManager)
+    {
+        return;
+    }
+
     const auto StartPoint = Controller->PlayerCameraManager->GetCameraLocation()
-    + Controller->PlayerCameraManager->GetActorForwardVector() * DetectionRadius;
-    
+                            + Controller->PlayerCameraManager->GetActorForwardVector() * DetectionRadius;
+
     const auto EndPoint = Controller->PlayerCameraManager->GetCameraLocation()
-    + Controller->PlayerCameraManager->GetActorForwardVector() * DetectionDistance;
+                          + Controller->PlayerCameraManager->GetActorForwardVector() * DetectionDistance;
 
     FHitResult Result;
     TArray<AActor*> ActorsToIgnore;
     ActorsToIgnore.Add(GetOwner());
-    
-    FCollisionQueryParams CollisionParams;
-    CollisionParams.AddIgnoredActor(GetOwner());
-    
 
-    
     const bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), StartPoint, EndPoint, DetectionRadius,
         DetectionObjectTypes, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Result, true,
         FLinearColor::Red, FLinearColor::Red, 1.0f);
-    
-    if(GEngine)
+
+    if (GEngine)
+    {
         GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green,
             FString::Printf(TEXT("Hit: %s"), bHit ? TEXT("True") : TEXT("False")));
+    }
 
-    
-    if(Result.IsValidBlockingHit())
+    if (Result.IsValidBlockingHit())
     {
         if (!CurrentProp)
         {
@@ -159,18 +180,16 @@ void UPCTelekinesisComponent::DetectTelekineticObject()
             CurrentProp->Highlight(false);
             CurrentProp = Cast<APCTelekineticProp>(Result.GetActor());
             CurrentProp->Highlight(true);
-        }        
+        }
     }
     else
     {
-        if(CurrentProp)
+        if (CurrentProp)
         {
             CurrentProp->Highlight(false);
             CurrentProp = nullptr;
         }
-
     }
-    
 }
 
 APCBaseCharacter* UPCTelekinesisComponent::GetBaseCharacter() const
@@ -180,6 +199,9 @@ APCBaseCharacter* UPCTelekinesisComponent::GetBaseCharacter() const
 
 APlayerController* UPCTelekinesisComponent::GetPlayerController() const
 {
-    if (!GetBaseCharacter()) return nullptr; 
+    if (!GetBaseCharacter())
+    {
+        return nullptr;
+    }
     return Cast<APlayerController>(GetBaseCharacter()->GetController());
 }

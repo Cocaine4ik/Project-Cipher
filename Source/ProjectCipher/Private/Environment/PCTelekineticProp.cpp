@@ -2,6 +2,7 @@
 
 #include "Environment/PCTelekineticProp.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/TimelineComponent.h"
 
 // Sets default values
 APCTelekineticProp::APCTelekineticProp()
@@ -11,9 +12,12 @@ APCTelekineticProp::APCTelekineticProp()
     StaticMeshComponent->SetCollisionProfileName("Telekinesis");
     
     StaticMeshComponent->SetCustomDepthStencilValue(0);
+
+    LiftTimeLine = CreateDefaultSubobject<UTimelineComponent>("LiftTimeLine");
     
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
+    
 }
 
 void APCTelekineticProp::Highlight(bool bEnable)
@@ -32,6 +36,40 @@ void APCTelekineticProp::Highlight(bool bEnable)
         StaticMeshComponent->SetCustomDepthStencilValue(0);
     }
     bHighlight ? StaticMeshComponent->CustomDepthStencilValue = 1 : StaticMeshComponent->CustomDepthStencilValue = 0;
+}
+
+void APCTelekineticProp::Pull()
+{
+    Lift();
+}
+
+void APCTelekineticProp::Lift()
+{
+    StartLiftPoint = EndLiftPoint = GetActorLocation();
+    EndLiftPoint.Z += LiftHeight;
+
+    FOnTimelineFloat TimeLineStartEvent;
+    FOnTimelineEvent TimeLineFinishedEvent;
+
+    TimeLineStartEvent.BindUFunction(this, FName("OnLiftingStart"));
+    TimeLineFinishedEvent.BindUFunction(this, FName("OnLiftingFinished"));
+
+    if(MovementCurve)
+    {
+        LiftTimeLine->AddInterpFloat(MovementCurve, TimeLineStartEvent); 
+    }
+    
+    LiftTimeLine->PlayFromStart();
+}
+
+void APCTelekineticProp::OnLiftingStart(float Value)
+{
+    auto NewLoc = FMath::Lerp(StartLiftPoint, EndLiftPoint, Value);
+    SetActorLocation(NewLoc);
+}
+
+void APCTelekineticProp::OnLiftingFinished()
+{
 }
 
 // Called when the game starts or when spawned
