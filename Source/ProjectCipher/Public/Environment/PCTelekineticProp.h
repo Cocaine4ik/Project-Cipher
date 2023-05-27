@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class UTimelineComponent;
 
+UENUM()
 enum class ETelekinesisState
 {
     Default,
@@ -42,6 +43,12 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lifting")
     UCurveFloat* MovementCurve;
 
+    UPROPERTY(VisibleAnywhere, Category = "Telekinesis")
+    ETelekinesisState CurrentState;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Telekinesis")
+    float PullSpeed = 100.0f;
+    
     UTimelineComponent* LiftTimeLine;
     
     UFUNCTION()
@@ -62,4 +69,6 @@ private:
     FVector EndLiftPoint;
     
     void Lift();
+    void InitializePull();
+    void MoveToCharacter();
 };

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Player/PCBaseCharacter.h"
+#include "Player/PCCipherCharacter.h"
 #include "PCTelekinesisComponent.generated.h"
 
 class APCTelekineticProp;
@@ -23,10 +23,10 @@ protected:
     float FOVZoomAngle = 60.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
-    float ZoomDuration = 1.0f;
+    float ZoomDuration = 0.5f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
-    float ZoomFrequency = 0.1f;
+    float ZoomFrequency = 0.25f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
     UAnimMontage* PullAnimation;
@@ -35,10 +35,10 @@ protected:
     UAnimMontage* PushAnimation;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
-    float DetectionDistance = 2000.0f;
+    float DetectionDistance = 3000.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
-    float DetectionRadius = 100.0f;
+    float DetectionRadius = 25.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
     TArray<TEnumAsByte<EObjectTypeQuery>> DetectionObjectTypes;
@@ -77,7 +77,7 @@ private:
 
     void DetectTelekineticObject();
     
-    APCBaseCharacter* GetBaseCharacter() const;
+    APCCipherCharacter* GetCipherCharacter() const;
     APlayerController* GetPlayerController() const;
     
 };

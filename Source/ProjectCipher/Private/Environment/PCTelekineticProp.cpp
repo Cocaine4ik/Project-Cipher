@@ -14,6 +14,8 @@ APCTelekineticProp::APCTelekineticProp()
     StaticMeshComponent->SetCustomDepthStencilValue(0);
 
     LiftTimeLine = CreateDefaultSubobject<UTimelineComponent>("LiftTimeLine");
+
+    CurrentState = ETelekinesisState::Default;
     
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -62,6 +64,16 @@ void APCTelekineticProp::Lift()
     LiftTimeLine->PlayFromStart();
 }
 
+void APCTelekineticProp::InitializePull()
+{
+    StaticMeshComponent->SetEnableGravity(false);
+    CurrentState = ETelekinesisState::Pulled;
+}
+
+void APCTelekineticProp::MoveToCharacter()
+{
+}
+
 void APCTelekineticProp::OnLiftingStart(float Value)
 {
     auto NewLoc = FMath::Lerp(StartLiftPoint, EndLiftPoint, Value);
@@ -70,6 +82,7 @@ void APCTelekineticProp::OnLiftingStart(float Value)
 
 void APCTelekineticProp::OnLiftingFinished()
 {
+    InitializePull();
 }
 
 // Called when the game starts or when spawned
@@ -84,4 +97,8 @@ void APCTelekineticProp::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    if(CurrentState == ETelekinesisState::Pulled)
+    {
+        MoveToCharacter();
+    }
 }

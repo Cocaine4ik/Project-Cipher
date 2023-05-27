@@ -2,7 +2,7 @@
 
 
 #include "Components/PCTelekinesisComponent.h"
-#include "PCBaseCharacter.h"
+#include "PCCipherCharacter.h"
 #include "Environment/PCTelekineticProp.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Environment/PCTelekineticProp.h"
@@ -45,7 +45,7 @@ void UPCTelekinesisComponent::Telekinesis()
 
 void UPCTelekinesisComponent::Zoom(bool bEnabled)
 {
-    const auto Character = GetBaseCharacter();
+    const auto Character = GetCipherCharacter();
     if (!Character)
     {
         return;
@@ -90,7 +90,7 @@ void UPCTelekinesisComponent::ZoomUpdate()
     const float Alpha = FMath::Clamp((CurrentTime - StartTime) / ZoomDuration, 0.0f, 1.0f);
     const float NewCameraFOV = FMath::Lerp(InitialCameraFOV, TargetCameraFOV, Alpha);
 
-    const auto Character = GetBaseCharacter();
+    const auto Character = GetCipherCharacter();
     if (!Character)
     {
         return;
@@ -114,11 +114,11 @@ void UPCTelekinesisComponent::ZoomUpdate()
 
 void UPCTelekinesisComponent::Pull()
 {
-    if (!GetBaseCharacter() && !CurrentProp)
+    if (!GetCipherCharacter() || !CurrentProp)
     {
         return;
     }
-    GetBaseCharacter()->PlayAnimMontage(PullAnimation);
+    GetCipherCharacter()->PlayAnimMontage(PullAnimation);
     Zoom(true);
 
     CurrentProp->Highlight(false);
@@ -127,11 +127,11 @@ void UPCTelekinesisComponent::Pull()
 
 void UPCTelekinesisComponent::Push()
 {
-    if (!bTelekinesis || !GetBaseCharacter())
+    if (!bTelekinesis || !GetCipherCharacter())
     {
         return;
     }
-    GetBaseCharacter()->PlayAnimMontage(PushAnimation);
+    GetCipherCharacter()->PlayAnimMontage(PushAnimation);
     Zoom(false);
 }
 
@@ -192,16 +192,16 @@ void UPCTelekinesisComponent::DetectTelekineticObject()
     }
 }
 
-APCBaseCharacter* UPCTelekinesisComponent::GetBaseCharacter() const
+APCCipherCharacter* UPCTelekinesisComponent::GetCipherCharacter() const
 {
-    return Cast<APCBaseCharacter>(GetOwner());
+    return Cast<APCCipherCharacter>(GetOwner());
 }
 
 APlayerController* UPCTelekinesisComponent::GetPlayerController() const
 {
-    if (!GetBaseCharacter())
+    if (!GetCipherCharacter())
     {
         return nullptr;
     }
-    return Cast<APlayerController>(GetBaseCharacter()->GetController());
+    return Cast<APlayerController>(GetCipherCharacter()->GetController());
 }
