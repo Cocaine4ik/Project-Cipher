@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "PCBaseCharacter.generated.h"
 
+class USpringArmComponent;
+class UCameraComponent;
 class UPCTelekinesisComponent;
 
 UCLASS()
@@ -18,13 +20,13 @@ public:
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    class USpringArmComponent* SpringArmComponent;
+    USpringArmComponent* SpringArmComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    class UCameraComponent* CameraComponent;
+    UCameraComponent* CameraComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    class UPCTelekinesisComponent* TelekinesisComponent;
+    UPCTelekinesisComponent* TelekinesisComponent;
     
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
