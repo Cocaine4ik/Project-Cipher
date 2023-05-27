@@ -3,8 +3,9 @@
 
 #include "Components/PCTelekinesisComponent.h"
 #include "PCBaseCharacter.h"
+#include "Environment/PCTelekineticProp.h"
 #include "Kismet/KismetSystemLibrary.h"
-
+#include "Environment/PCTelekineticProp.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTelekinesisComponent, All, All)
 
@@ -33,16 +34,7 @@ void UPCTelekinesisComponent::BeginPlay()
 void UPCTelekinesisComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    /*
-    if(GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green,
-            FString::Printf(TEXT("Telekinesis: %s"), bTelekinesis ? TEXT("True") : TEXT("False")));
-    
-    const auto Controller = GetPlayerController();
-    const auto Start = Controller->PlayerCameraManager->GetCameraLocation();
-    const auto End = Controller->PlayerCameraManager->GetActorForwardVector() * 1000;
-    DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, -1.0f, 0, 2.0f);
-    */
+
     DetectTelekineticObject();
 }
 
@@ -131,20 +123,53 @@ void UPCTelekinesisComponent::DetectTelekineticObject()
     const auto Controller = GetPlayerController();
     if(!Controller || !Controller->PlayerCameraManager) return;
     
-    const auto StartPoint = Controller->PlayerCameraManager->GetCameraLocation();
-    const auto EndPoint = Controller->PlayerCameraManager->GetActorForwardVector() * DetectionDistance;
+    const auto StartPoint = Controller->PlayerCameraManager->GetCameraLocation()
+    + Controller->PlayerCameraManager->GetActorForwardVector() * DetectionRadius;
+    
+    const auto EndPoint = Controller->PlayerCameraManager->GetCameraLocation()
+    + Controller->PlayerCameraManager->GetActorForwardVector() * DetectionDistance;
 
     FHitResult Result;
     TArray<AActor*> ActorsToIgnore;
     ActorsToIgnore.Add(GetOwner());
     
-    const bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), StartPoint, EndPoint, DetectionRadius,
-        DetectionObjectTypes, false, ActorsToIgnore, EDrawDebugTrace::None, Result, true,
-        FLinearColor::Red, FLinearColor::Red, 2.0f);
+    FCollisionQueryParams CollisionParams;
+    CollisionParams.AddIgnoredActor(GetOwner());
+    
 
+    
+    const bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), StartPoint, EndPoint, DetectionRadius,
+        DetectionObjectTypes, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Result, true,
+        FLinearColor::Red, FLinearColor::Red, 1.0f);
+    
     if(GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green,
             FString::Printf(TEXT("Hit: %s"), bHit ? TEXT("True") : TEXT("False")));
+
+    
+    if(Result.IsValidBlockingHit())
+    {
+        if (!CurrentProp)
+        {
+            CurrentProp = Cast<APCTelekineticProp>(Result.GetActor());
+            CurrentProp->Highlight(true);
+        }
+        else if (CurrentProp->GetName() != Cast<APCTelekineticProp>(Result.GetActor())->GetName())
+        {
+            CurrentProp->Highlight(false);
+            CurrentProp = Cast<APCTelekineticProp>(Result.GetActor());
+            CurrentProp->Highlight(true);
+        }        
+    }
+    else
+    {
+        if(CurrentProp)
+        {
+            CurrentProp->Highlight(false);
+            CurrentProp = nullptr;
+        }
+
+    }
     
 }
 

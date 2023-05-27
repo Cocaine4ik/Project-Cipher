@@ -7,6 +7,7 @@
 #include "Player/PCBaseCharacter.h"
 #include "PCTelekinesisComponent.generated.h"
 
+class APCTelekineticProp;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTCIPHER_API UPCTelekinesisComponent : public UActorComponent
@@ -66,6 +67,8 @@ private:
     float InitialCameraFOV;
     FTimerHandle ZoomTimerHandle;
     float StartTime;
+
+    APCTelekineticProp* CurrentProp;
     
     void Zoom(bool bEnabled);
     void ZoomUpdate();
@@ -76,4 +79,5 @@ private:
     
     APCBaseCharacter* GetBaseCharacter() const;
     APlayerController* GetPlayerController() const;
+    
 };
