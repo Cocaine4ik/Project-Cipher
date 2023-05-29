@@ -8,6 +8,7 @@
 
 class UStaticMeshComponent;
 class UTimelineComponent;
+class USceneComponent;
 
 UENUM()
 enum class ETelekinesisState
@@ -25,11 +26,10 @@ class PROJECTCIPHER_API APCTelekineticProp : public AActor
 public:
     // Sets default values for this actor's properties
     APCTelekineticProp();
-
     void Highlight(bool bEnable);
-    void Pull();
+    void Pull(USceneComponent& PullTargetComponent);
     void Push();
-
+    
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
     UStaticMeshComponent* StaticMeshComponent;
@@ -37,19 +37,24 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Telekinesis")
     bool bHighlight = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Lifting")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Telekinesis")
     float LiftHeight = 200.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lifting")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Telekinesis")
     UCurveFloat* MovementCurve;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Telekinesis")
+    float PullSpeed = 1000.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Telekinesis")
+    float PullRotation = 0.1f;
+    
     UPROPERTY(VisibleAnywhere, Category = "Telekinesis")
     ETelekinesisState CurrentState;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Telekinesis")
-    float PullSpeed = 100.0f;
     
     UTimelineComponent* LiftTimeLine;
+
+    USceneComponent* PullTarget;
     
     UFUNCTION()
     void OnLiftingStart(float Value);
@@ -63,7 +68,6 @@ protected:
 public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
-
 private:
     FVector StartLiftPoint;
     FVector EndLiftPoint;

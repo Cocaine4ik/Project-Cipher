@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UPCTelekinesisComponent;
+class USceneComponent;
 
 UCLASS()
 class PROJECTCIPHER_API APCCipherCharacter : public APCBaseCharacter
@@ -28,6 +29,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UCameraComponent* CameraComponent;
 
+    UPROPERTY(EditAnywhere,Category = "Components")
+    USceneComponent* PullTarget;
+    
 private:
     void MoveForward(float Value);
     void MoveRight(float Value);
@@ -37,4 +41,5 @@ public:
 
     USpringArmComponent* GetCameraBoom() const { return SpringArmComponent; }
     UCameraComponent* GetFollowCamera() const { return CameraComponent; }
+    USceneComponent* GetPullTarget() const {return PullTarget; }
 };

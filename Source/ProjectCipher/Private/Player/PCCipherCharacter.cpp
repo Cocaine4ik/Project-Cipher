@@ -9,6 +9,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/PCTelekinesisComponent.h"
+#include "Components/SceneComponent.h"
 
 APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Super(ObjInit)
 {
@@ -41,6 +42,10 @@ APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Supe
     CameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
     TelekinesisComponent = CreateDefaultSubobject<UPCTelekinesisComponent>(TEXT("TelekinesisComponent"));
+
+    // Create pull place and attach it to static mesh 
+    PullTarget = CreateDefaultSubobject<USceneComponent>(TEXT("PullTarget"));
+    PullTarget->SetupAttachment(GetMesh());
     
 }
 

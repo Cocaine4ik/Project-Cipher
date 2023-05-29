@@ -6,12 +6,14 @@
 #include "Environment/PCTelekineticProp.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Environment/PCTelekineticProp.h"
+#include "GameFramework/SpringArmComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTelekinesisComponent, All, All)
 
 // Sets default values for this component's properties
 UPCTelekinesisComponent::UPCTelekinesisComponent()
 {
+    
     // Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
     // off to improve performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = true;
@@ -25,8 +27,8 @@ void UPCTelekinesisComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    // ...
-
+    SpringArmComponent = Cast<USpringArmComponent>(
+        GetOwner()->GetComponentByClass(USpringArmComponent::StaticClass()));
 }
 
 
@@ -45,28 +47,25 @@ void UPCTelekinesisComponent::Telekinesis()
 
 void UPCTelekinesisComponent::Zoom(bool bEnabled)
 {
-    const auto Character = GetCipherCharacter();
-    if (!Character)
+
+    if (!SpringArmComponent)
     {
         return;
     }
-
-    const auto Controller = GetPlayerController();
-    if (!Controller || !Controller->PlayerCameraManager)
-    {
-        return;
-    }
-
-    // Controller->PlayerCameraManager->SetFOV(FOVZoomAngle);
 
     if (bEnabled)
     {
-        DefaultCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
+        DefaultCameraPosition = SpringArmComponent->GetRelativeLocation();
 
         bZoom = true;
-        TargetCameraFOV = FOVZoomAngle;
-        InitialCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
-
+        
+        // Initialize target camera position using zoom angle and camera offset
+        TargetCameraPosition = DefaultCameraPosition;
+        TargetCameraPosition.X += CameraOffsetX;
+        TargetCameraPosition.Y -= CameraOffsetY;
+        
+        InitialCameraPosition = DefaultCameraPosition;
+        
         StartTime = GetWorld()->GetTimeSeconds();
 
         GetWorld()->GetTimerManager().SetTimer(ZoomTimerHandle, this, &UPCTelekinesisComponent::ZoomUpdate, ZoomFrequency, true);
@@ -74,9 +73,8 @@ void UPCTelekinesisComponent::Zoom(bool bEnabled)
     else
     {
         bZoom = false;
-        TargetCameraFOV = DefaultCameraFOV;
-        InitialCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
-
+        TargetCameraPosition = DefaultCameraPosition;
+        InitialCameraPosition = SpringArmComponent->GetRelativeLocation();
         StartTime = GetWorld()->GetTimeSeconds();
 
         GetWorld()->GetTimerManager().SetTimer(ZoomTimerHandle, this, &UPCTelekinesisComponent::ZoomUpdate, ZoomFrequency, true);
@@ -86,25 +84,12 @@ void UPCTelekinesisComponent::Zoom(bool bEnabled)
 
 void UPCTelekinesisComponent::ZoomUpdate()
 {
+    
     const float CurrentTime = GetWorld()->GetTimeSeconds();
     const float Alpha = FMath::Clamp((CurrentTime - StartTime) / ZoomDuration, 0.0f, 1.0f);
-    const float NewCameraFOV = FMath::Lerp(InitialCameraFOV, TargetCameraFOV, Alpha);
-
-    const auto Character = GetCipherCharacter();
-    if (!Character)
-    {
-        return;
-    }
-
-    const auto Controller = GetPlayerController();
-    if (!Controller || !Controller->PlayerCameraManager)
-    {
-        return;
-    }
-
-    Controller->PlayerCameraManager->SetFOV(NewCameraFOV);
-
-    UE_LOG(LogTelekinesisComponent, Display, TEXT("NewCameraFOV: %f"), NewCameraFOV);
+    const FVector NewCameraPosition = FMath::Lerp(InitialCameraPosition, TargetCameraPosition, Alpha);
+    
+    SpringArmComponent->SetRelativeLocation(NewCameraPosition);
 
     if (Alpha >= 1.0f)
     {
@@ -122,7 +107,7 @@ void UPCTelekinesisComponent::Pull()
     Zoom(true);
 
     CurrentProp->Highlight(false);
-    CurrentProp->Pull();
+    CurrentProp->Pull(*GetCipherCharacter()->GetPullTarget());
 }
 
 void UPCTelekinesisComponent::Push()
@@ -163,9 +148,9 @@ void UPCTelekinesisComponent::DetectTelekineticObject()
         FLinearColor::Red, FLinearColor::Red, 1.0f);
 
     if (GEngine)
-    {
+    {/*
         GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green,
-            FString::Printf(TEXT("Hit: %s"), bHit ? TEXT("True") : TEXT("False")));
+            FString::Printf(TEXT("Hit: %s"), bHit ? TEXT("True") : TEXT("False")));*/
     }
 
     if (Result.IsValidBlockingHit())

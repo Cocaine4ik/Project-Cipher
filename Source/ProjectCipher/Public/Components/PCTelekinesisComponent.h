@@ -20,14 +20,17 @@ public:
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
-    float FOVZoomAngle = 60.0f;
+    float CameraOffsetX = 160.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
-    float ZoomDuration = 0.5f;
+    float CameraOffsetY = 50.0f;
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
+    float ZoomDuration = 0.4f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
     float ZoomFrequency = 0.25f;
-
+    
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
     UAnimMontage* PullAnimation;
 
@@ -59,12 +62,14 @@ public:
     void Telekinesis();
 
 private:
+    USpringArmComponent* SpringArmComponent;
     bool bTelekinesis = false;
     bool bZoom = false;
     
-    float DefaultCameraFOV = 90.0f;
-    float TargetCameraFOV;
-    float InitialCameraFOV;
+    FVector DefaultCameraPosition;
+    FVector TargetCameraPosition;
+    FVector InitialCameraPosition;
+    
     FTimerHandle ZoomTimerHandle;
     float StartTime;
 

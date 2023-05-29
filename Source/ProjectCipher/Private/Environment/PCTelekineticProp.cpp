@@ -3,6 +3,7 @@
 #include "Environment/PCTelekineticProp.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Components/SceneComponent.h"
 
 // Sets default values
 APCTelekineticProp::APCTelekineticProp()
@@ -13,10 +14,13 @@ APCTelekineticProp::APCTelekineticProp()
     
     StaticMeshComponent->SetCustomDepthStencilValue(0);
 
-    LiftTimeLine = CreateDefaultSubobject<UTimelineComponent>("LiftTimeLine");
+    LiftTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("LiftTimeLine"));
 
     CurrentState = ETelekinesisState::Default;
-    
+
+    // Enable physics simulation
+    StaticMeshComponent->SetSimulatePhysics(true);
+    StaticMeshComponent->SetAngularDamping(2.0f);
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
     
@@ -40,8 +44,9 @@ void APCTelekineticProp::Highlight(bool bEnable)
     bHighlight ? StaticMeshComponent->CustomDepthStencilValue = 1 : StaticMeshComponent->CustomDepthStencilValue = 0;
 }
 
-void APCTelekineticProp::Pull()
+void APCTelekineticProp::Pull(USceneComponent& PullTargetComponent)
 {
+    PullTarget = &PullTargetComponent;
     Lift();
 }
 
@@ -60,18 +65,28 @@ void APCTelekineticProp::Lift()
     {
         LiftTimeLine->AddInterpFloat(MovementCurve, TimeLineStartEvent); 
     }
-    
+    LiftTimeLine->SetTimelineFinishedFunc(TimeLineFinishedEvent);
     LiftTimeLine->PlayFromStart();
 }
 
 void APCTelekineticProp::InitializePull()
 {
     StaticMeshComponent->SetEnableGravity(false);
+    StaticMeshComponent->SetLinearDamping(20.0f);
     CurrentState = ETelekinesisState::Pulled;
 }
 
 void APCTelekineticProp::MoveToCharacter()
 {
+    if(PullTarget)
+    {
+        if(GetWorld())
+        DrawDebugLine(GetWorld(), StaticMeshComponent->GetComponentLocation(), PullTarget->GetComponentLocation(),
+            FColor::Orange, false, 0.1f);
+        
+        const auto Impulse = PullTarget->GetComponentLocation() - GetActorLocation();
+        StaticMeshComponent->AddImpulse(Impulse * PullSpeed);
+    }
 }
 
 void APCTelekineticProp::OnLiftingStart(float Value)
@@ -82,6 +97,7 @@ void APCTelekineticProp::OnLiftingStart(float Value)
 
 void APCTelekineticProp::OnLiftingFinished()
 {
+
     InitializePull();
 }
 
@@ -100,5 +116,8 @@ void APCTelekineticProp::Tick(float DeltaTime)
     if(CurrentState == ETelekinesisState::Pulled)
     {
         MoveToCharacter();
+
+        // Add Rotation Effect
+        AddActorLocalRotation(FRotator(PullRotation, PullRotation, PullRotation));
     }
 }
