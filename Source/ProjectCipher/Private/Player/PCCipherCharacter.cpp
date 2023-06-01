@@ -24,14 +24,16 @@ APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Supe
 
     // Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
     // instead of recompiling to adjust them
-    GetCharacterMovement()->MaxWalkSpeed = 500.f;
+    GetCharacterMovement()->JumpZVelocity = 700.f;
+    GetCharacterMovement()->AirControl = 0.35f;
+    GetCharacterMovement()->MaxWalkSpeed = MaxRunSpeed;
     GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
-    GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+    GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
 
     // Create a camera boom (pulls in towards the player if there is a collision)
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
     SpringArmComponent->SetupAttachment(RootComponent);
-    SpringArmComponent->TargetArmLength = 400.0f;       // The camera follows at this distance behind the character	
+    SpringArmComponent->TargetArmLength = 250.0f;       // The camera follows at this distance behind the character	
     SpringArmComponent->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
     // Create a follow camera
@@ -46,14 +48,13 @@ APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Supe
     // Create pull place and attach it to static mesh 
     PullTarget = CreateDefaultSubobject<USceneComponent>(TEXT("PullTarget"));
     PullTarget->SetupAttachment(GetMesh());
-    
 }
 
 void APCCipherCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
     PlayerInputComponent->BindAxis("MoveForward", this, &APCCipherCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &APCCipherCharacter::MoveRight);
-    PlayerInputComponent->BindAxis("TurnRight", this, &APawn::AddControllerYawInput);
+    PlayerInputComponent->BindAxis("LookAround", this, &APCCipherCharacter::LookAround);
     PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
     PlayerInputComponent->BindAction("Telekinesis", IE_Pressed, TelekinesisComponent, &UPCTelekinesisComponent::Telekinesis);
 }
@@ -85,5 +86,20 @@ void APCCipherCharacter::MoveRight(float Value)
         const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
         // add movement in that direction
         AddMovementInput(Direction, Value);
+    }
+}
+
+void APCCipherCharacter::LookAround(float Value)
+{
+    if (Controller != nullptr && Value != 0.0f)
+    {
+        // find out which way is right
+        const FRotator Rotation = Controller->GetControlRotation();
+        AddControllerYawInput(Value);
+        
+        if (TelekinesisComponent && TelekinesisComponent->IsTelekinesis())
+        {
+            AddActorWorldRotation(FRotator(0.0f, Value * YawInputScale, 0.0f));
+        }
     }
 }
