@@ -28,7 +28,7 @@ public:
     APCTelekineticProp();
     void Highlight(bool bEnable);
     void Pull(USceneComponent& PullTargetComponent);
-    void Push();
+    void Push(const FHitResult& Result);
     
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
@@ -48,6 +48,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Telekinesis")
     float PullRotation = 0.1f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Telekinesis")
+    float PushForce = 3000.0f;
     
     UPROPERTY(VisibleAnywhere, Category = "Telekinesis")
     ETelekinesisState CurrentState;

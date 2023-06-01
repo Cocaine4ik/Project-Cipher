@@ -50,6 +50,26 @@ void APCTelekineticProp::Pull(USceneComponent& PullTargetComponent)
     Lift();
 }
 
+void APCTelekineticProp::Push(const FHitResult& Result)
+{
+    // Stop lift if it still working
+    LiftTimeLine->Stop();
+
+    // Enable gravity and set Linear Damping to default
+    StaticMeshComponent->SetEnableGravity(true);
+    StaticMeshComponent->SetLinearDamping(0.1f);
+
+    CurrentState = ETelekinesisState::Pushed;
+
+    // Calculate difference, normalize vector and add it as an impulse
+    const auto Difference = Result.ImpactPoint - GetActorLocation();
+    const auto Impulse = Difference.GetSafeNormal() * PushForce;
+    StaticMeshComponent->AddImpulse(Impulse, NAME_None, true);
+    
+    GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green,
+            FString::Printf(TEXT("Inpulse: %s"), *Impulse.ToString()));
+}
+
 void APCTelekineticProp::Lift()
 {
     StartLiftPoint = EndLiftPoint = GetActorLocation();
@@ -105,7 +125,7 @@ void APCTelekineticProp::OnLiftingFinished()
 void APCTelekineticProp::BeginPlay()
 {
     Super::BeginPlay();
-
+    StaticMeshComponent->SetEnableGravity(true);
 }
 
 // Called every frame

@@ -7,18 +7,14 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Environment/PCTelekineticProp.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTelekinesisComponent, All, All)
 
 // Sets default values for this component's properties
 UPCTelekinesisComponent::UPCTelekinesisComponent()
 {
-    
-    // Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-    // off to improve performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = true;
-
-    // ...
 }
 
 
@@ -29,6 +25,9 @@ void UPCTelekinesisComponent::BeginPlay()
 
     SpringArmComponent = Cast<USpringArmComponent>(
         GetOwner()->GetComponentByClass(USpringArmComponent::StaticClass()));
+
+    CharacterMovementComponent = Cast<UCharacterMovementComponent>(
+    GetOwner()->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 }
 
 
@@ -99,25 +98,49 @@ void UPCTelekinesisComponent::ZoomUpdate()
 
 void UPCTelekinesisComponent::Pull()
 {
-    if (!GetCipherCharacter() || !CurrentProp)
+    if (!GetCipherCharacter() || !DetectedProp)
     {
         return;
     }
+    DefaultSpeed = GetCipherCharacter()->GetMaxRunSpeed();
+    CharacterMovementComponent->MaxWalkSpeed = GetCipherCharacter()->GetMaxWalkSpeed();
+    
     GetCipherCharacter()->PlayAnimMontage(PullAnimation);
     Zoom(true);
 
-    CurrentProp->Highlight(false);
-    CurrentProp->Pull(*GetCipherCharacter()->GetPullTarget());
+    DetectedProp->Highlight(false);
+    DetectedProp->Pull(*GetCipherCharacter()->GetPullTarget());
+    PulledProp = DetectedProp;
 }
 
 void UPCTelekinesisComponent::Push()
 {
-    if (!bTelekinesis || !GetCipherCharacter())
+    if (!bTelekinesis || !GetCipherCharacter() || !GetWorld())
     {
         return;
     }
-    GetCipherCharacter()->PlayAnimMontage(PushAnimation);
+
     Zoom(false);
+    
+    FHitResult Result;
+    FCollisionQueryParams CollisionParams;
+    CollisionParams.AddIgnoredActor(GetOwner());
+
+    // Calculate start and and points, make line trace
+    const auto StartPoint = SpringArmComponent->GetComponentLocation();
+    const auto EndPoint = SpringArmComponent->GetComponentLocation()
+    + SpringArmComponent->GetForwardVector() * PushDistance;
+    const bool bHit = GetWorld()->LineTraceSingleByChannel(Result, StartPoint, EndPoint, ECC_Visibility, CollisionParams);
+    
+    if (Result.bBlockingHit)
+    {
+        PulledProp->Push(Result);
+        PulledProp = nullptr;
+    }
+    
+    GetCipherCharacter()->PlayAnimMontage(PushAnimation);
+
+    CharacterMovementComponent->MaxWalkSpeed = DefaultSpeed;
 }
 
 void UPCTelekinesisComponent::DetectTelekineticObject()
@@ -144,7 +167,7 @@ void UPCTelekinesisComponent::DetectTelekineticObject()
     ActorsToIgnore.Add(GetOwner());
 
     const bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), StartPoint, EndPoint, DetectionRadius,
-        DetectionObjectTypes, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Result, true,
+        DetectionObjectTypes, false, ActorsToIgnore, EDrawDebugTrace::None, Result, true,
         FLinearColor::Red, FLinearColor::Red, 1.0f);
 
     if (GEngine)
@@ -155,24 +178,24 @@ void UPCTelekinesisComponent::DetectTelekineticObject()
 
     if (Result.IsValidBlockingHit())
     {
-        if (!CurrentProp)
+        if (!DetectedProp)
         {
-            CurrentProp = Cast<APCTelekineticProp>(Result.GetActor());
-            CurrentProp->Highlight(true);
+            DetectedProp = Cast<APCTelekineticProp>(Result.GetActor());
+            DetectedProp->Highlight(true);
         }
-        else if (CurrentProp->GetName() != Cast<APCTelekineticProp>(Result.GetActor())->GetName())
+        else if (DetectedProp->GetName() != Cast<APCTelekineticProp>(Result.GetActor())->GetName())
         {
-            CurrentProp->Highlight(false);
-            CurrentProp = Cast<APCTelekineticProp>(Result.GetActor());
-            CurrentProp->Highlight(true);
+            DetectedProp->Highlight(false);
+            DetectedProp = Cast<APCTelekineticProp>(Result.GetActor());
+            DetectedProp->Highlight(true);
         }
     }
     else
     {
-        if (CurrentProp)
+        if (DetectedProp)
         {
-            CurrentProp->Highlight(false);
-            CurrentProp = nullptr;
+            DetectedProp->Highlight(false);
+            DetectedProp = nullptr;
         }
     }
 }

@@ -8,6 +8,8 @@
 #include "PCTelekinesisComponent.generated.h"
 
 class APCTelekineticProp;
+class USpringArmComponent;
+class UCharacterMovementComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTCIPHER_API UPCTelekinesisComponent : public UActorComponent
@@ -17,6 +19,9 @@ class PROJECTCIPHER_API UPCTelekinesisComponent : public UActorComponent
 public:
     // Sets default values for this component's properties
     UPCTelekinesisComponent();
+
+    UFUNCTION(BlueprintCallable)
+    bool IsTelekinesis() const { return bTelekinesis; }
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Zoom")
@@ -41,13 +46,17 @@ protected:
     float DetectionDistance = 3000.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
+    float PushDistance = 3000.0f;
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
     float DetectionRadius = 25.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
-    TArray<TEnumAsByte<EObjectTypeQuery>> DetectionObjectTypes;
+    float SpeedWhileTelekinesis = 25.0f;
     
-    UFUNCTION(BlueprintCallable)
-    bool IsTelekinesis() const { return bTelekinesis; }
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
+    TArray<TEnumAsByte<EObjectTypeQuery>> DetectionObjectTypes;
     
     UFUNCTION(BlueprintCallable)
     void SetTelekinesis(bool Value) { bTelekinesis = Value; }
@@ -63,8 +72,11 @@ public:
 
 private:
     USpringArmComponent* SpringArmComponent;
+    UCharacterMovementComponent* CharacterMovementComponent;
     bool bTelekinesis = false;
     bool bZoom = false;
+
+    float DefaultSpeed;
     
     FVector DefaultCameraPosition;
     FVector TargetCameraPosition;
@@ -73,7 +85,8 @@ private:
     FTimerHandle ZoomTimerHandle;
     float StartTime;
 
-    APCTelekineticProp* CurrentProp;
+    APCTelekineticProp* DetectedProp;
+    APCTelekineticProp* PulledProp;
     
     void Zoom(bool bEnabled);
     void ZoomUpdate();
