@@ -49,11 +49,7 @@ protected:
     float PushDistance = 3000.0f;
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
-    float DetectionRadius = 25.0f;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
-    float SpeedWhileTelekinesis = 25.0f;
-    
+    float DetectionRadius = 25.0f;    
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
     TArray<TEnumAsByte<EObjectTypeQuery>> DetectionObjectTypes;
