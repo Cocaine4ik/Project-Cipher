@@ -14,7 +14,8 @@ public class ProjectCipher : ModuleRules
 		PublicIncludePaths.AddRange(new[]
 		{
 			"ProjectCipher/Public/Player",
-			"ProjectCipher/Public/Components"
+			"ProjectCipher/Public/Components",
+			"ProjectCipher/Public/Environment"
 		});
 	}
 }

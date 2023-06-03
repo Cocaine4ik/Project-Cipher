@@ -49,17 +49,16 @@ protected:
     float PushDistance = 3000.0f;
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
-    float DetectionRadius = 25.0f;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
-    float SpeedWhileTelekinesis = 25.0f;
-    
+    float DetectionRadius = 25.0f;    
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
     TArray<TEnumAsByte<EObjectTypeQuery>> DetectionObjectTypes;
     
     UFUNCTION(BlueprintCallable)
     void SetTelekinesis(bool Value) { bTelekinesis = Value; }
+    
+    UFUNCTION(BlueprintCallable)
+    void SetCanPush(bool Value) { bCanPush = Value; }
     
     // Called when the game starts
     virtual void BeginPlay() override;
@@ -73,7 +72,10 @@ public:
 private:
     USpringArmComponent* SpringArmComponent;
     UCharacterMovementComponent* CharacterMovementComponent;
+    
     bool bTelekinesis = false;
+    bool bCanPush = false;
+    
     bool bZoom = false;
 
     float DefaultSpeed;
