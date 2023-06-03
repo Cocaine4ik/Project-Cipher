@@ -57,6 +57,9 @@ protected:
     UFUNCTION(BlueprintCallable)
     void SetTelekinesis(bool Value) { bTelekinesis = Value; }
     
+    UFUNCTION(BlueprintCallable)
+    void SetCanPush(bool Value) { bCanPush = Value; }
+    
     // Called when the game starts
     virtual void BeginPlay() override;
 
@@ -69,7 +72,10 @@ public:
 private:
     USpringArmComponent* SpringArmComponent;
     UCharacterMovementComponent* CharacterMovementComponent;
+    
     bool bTelekinesis = false;
+    bool bCanPush = false;
+    
     bool bZoom = false;
 
     float DefaultSpeed;

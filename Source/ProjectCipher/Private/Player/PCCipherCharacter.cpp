@@ -1,6 +1,7 @@
 // Project Cipher. All Rights Reserved.
 
 #include "Player/PCCipherCharacter.h"
+
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -10,6 +11,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/PCTelekinesisComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/PCPowerComponent.h"
+#include "Components/TimelineComponent.h"
 
 APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Super(ObjInit)
 {
@@ -48,6 +51,10 @@ APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Supe
     // Create pull place and attach it to static mesh 
     PullTarget = CreateDefaultSubobject<USceneComponent>(TEXT("PullTarget"));
     PullTarget->SetupAttachment(GetMesh());
+
+    PowerComponent = CreateDefaultSubobject<UPCPowerComponent>(TEXT("PowerComponent"));
+
+    DodgeTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("DodgeTimeLine"));
 }
 
 void APCCipherCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -57,6 +64,7 @@ void APCCipherCharacter::SetupPlayerInputComponent(class UInputComponent* Player
     PlayerInputComponent->BindAxis("LookAround", this, &APCCipherCharacter::LookAround);
     PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
     PlayerInputComponent->BindAction("Telekinesis", IE_Pressed, TelekinesisComponent, &UPCTelekinesisComponent::Telekinesis);
+    PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &APCCipherCharacter::Dodge);
 }
 
 void APCCipherCharacter::MoveForward(float Value)
@@ -102,4 +110,33 @@ void APCCipherCharacter::LookAround(float Value)
             AddActorWorldRotation(FRotator(0.0f, Value * YawInputScale, 0.0f));
         }
     }
+}
+
+void APCCipherCharacter::Dodge()
+{
+
+    if (TelekinesisComponent->IsTelekinesis() || !DodgeAnimation || !bCanDodge) return;
+    bCanDodge = false;
+    PlayAnimMontage(DodgeAnimation);
+
+    FOnTimelineFloat DodgeTimelineStartEvent;
+    //DodgeTimeLine->SetTimelineLength(0.5f);
+    DodgeTimelineStartEvent.BindUFunction(this, "OnDodgeStart");
+
+    if(DodgeCurve)
+    {
+        DodgeTimeLine->AddInterpFloat(DodgeCurve, DodgeTimelineStartEvent);
+    }
+
+    DodgeTimeLine->PlayFromStart();
+
+    
+}
+
+void APCCipherCharacter::OnDodgeStart()
+{
+    auto Velocity = GetActorForwardVector() * DodgeDistance;;
+    Velocity.Z = GetCharacterMovement()->Velocity.Z;
+    GetCharacterMovement()->Velocity = Velocity;
+
 }

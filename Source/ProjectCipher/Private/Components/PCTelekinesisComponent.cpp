@@ -41,7 +41,14 @@ void UPCTelekinesisComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UPCTelekinesisComponent::Telekinesis()
 {
-    bTelekinesis ? Push() : Pull();
+    if (!bTelekinesis && !bCanPush)
+    {
+        Pull(); 
+    }
+    else
+    {
+        Push();
+    }
 }
 
 void UPCTelekinesisComponent::Zoom(bool bEnabled)
@@ -141,6 +148,8 @@ void UPCTelekinesisComponent::Push()
     GetCipherCharacter()->PlayAnimMontage(PushAnimation);
 
     CharacterMovementComponent->MaxWalkSpeed = DefaultSpeed;
+
+    bCanPush = false;
 }
 
 void UPCTelekinesisComponent::DetectTelekineticObject()
