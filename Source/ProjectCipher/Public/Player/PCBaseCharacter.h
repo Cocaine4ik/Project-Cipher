@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "PCBaseCharacter.generated.h"
 
+class UPCHealthComponent;
+
 UCLASS()
 class APCBaseCharacter : public ACharacter
 {
@@ -13,4 +15,8 @@ class APCBaseCharacter : public ACharacter
 
 public:
     APCBaseCharacter(const FObjectInitializer& ObjInit);
+
+protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UPCHealthComponent* HealthComponent;
 };
