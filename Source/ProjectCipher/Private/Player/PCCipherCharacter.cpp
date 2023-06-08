@@ -1,14 +1,10 @@
 // Project Cipher. All Rights Reserved.
 
 #include "Player/PCCipherCharacter.h"
-
-#include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/PCTelekinesisComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Components/PCTelekinesisComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/PCPowerComponent.h"
@@ -16,11 +12,6 @@
 
 APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Super(ObjInit)
 {
-    // Don't rotate when the controller rotates. Let that just affect the camera.
-    bUseControllerRotationPitch = false;
-    bUseControllerRotationYaw = false;
-    bUseControllerRotationRoll = false;
-
     // Configure character movement
     GetCharacterMovement()->bOrientRotationToMovement = true;            // Character moves in the direction of input...	
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
@@ -33,19 +24,6 @@ APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Supe
     GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
 
-    // Create a camera boom (pulls in towards the player if there is a collision)
-    SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-    SpringArmComponent->SetupAttachment(RootComponent);
-    SpringArmComponent->TargetArmLength = 250.0f;       // The camera follows at this distance behind the character	
-    SpringArmComponent->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-
-    // Create a follow camera
-    CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-    CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-    
-    // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-    CameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
     TelekinesisComponent = CreateDefaultSubobject<UPCTelekinesisComponent>(TEXT("TelekinesisComponent"));
 
     // Create pull place and attach it to static mesh 
@@ -55,61 +33,6 @@ APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Supe
     PowerComponent = CreateDefaultSubobject<UPCPowerComponent>(TEXT("PowerComponent"));
 
     DodgeTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("DodgeTimeLine"));
-}
-
-void APCCipherCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
-{
-    PlayerInputComponent->BindAxis("MoveForward", this, &APCCipherCharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &APCCipherCharacter::MoveRight);
-    PlayerInputComponent->BindAxis("LookAround", this, &APCCipherCharacter::LookAround);
-    PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-    PlayerInputComponent->BindAction("Telekinesis", IE_Pressed, TelekinesisComponent, &UPCTelekinesisComponent::Telekinesis);
-    PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &APCCipherCharacter::Dodge);
-}
-
-void APCCipherCharacter::MoveForward(float Value)
-{
-    if (Controller != nullptr && Value != 0.0f)
-    {
-        // find out which way is forward
-        const FRotator Rotation = Controller->GetControlRotation();
-        const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-        // get forward vector
-        const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-        AddMovementInput(Direction, Value);
-    }
-    
-}
-
-void APCCipherCharacter::MoveRight(float Value)
-{
-    if (Controller != nullptr && Value != 0.0f)
-    {
-        // find out which way is right
-        const FRotator Rotation = Controller->GetControlRotation();
-        const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-        // get right vector 
-        const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-        // add movement in that direction
-        AddMovementInput(Direction, Value);
-    }
-}
-
-void APCCipherCharacter::LookAround(float Value)
-{
-    if (Controller != nullptr && Value != 0.0f)
-    {
-        // find out which way is right
-        const FRotator Rotation = Controller->GetControlRotation();
-        AddControllerYawInput(Value);
-        
-        if (TelekinesisComponent && TelekinesisComponent->IsTelekinesis())
-        {
-            AddActorWorldRotation(FRotator(0.0f, Value * YawInputScale, 0.0f));
-        }
-    }
 }
 
 void APCCipherCharacter::Dodge()

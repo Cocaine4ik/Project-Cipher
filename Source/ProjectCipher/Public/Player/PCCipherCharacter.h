@@ -6,8 +6,6 @@
 #include "Player/PCBaseCharacter.h"
 #include "PCCipherCharacter.generated.h"
 
-class USpringArmComponent;
-class UCameraComponent;
 class UPCTelekinesisComponent;
 class USceneComponent;
 class UPCPowerComponent;
@@ -25,12 +23,6 @@ public:
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UPCTelekinesisComponent* TelekinesisComponent;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    USpringArmComponent* SpringArmComponent;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    UCameraComponent* CameraComponent;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UPCPowerComponent* PowerComponent;
@@ -61,22 +53,17 @@ protected:
 
     UFUNCTION(BlueprintCallable)
     void SetCanDodge(bool Value) { bCanDodge = Value; }
-    
+
 private:
     UTimelineComponent* DodgeTimeLine;
 
     bool bCanDodge = true;
-    
-    void MoveForward(float Value);
-    void MoveRight(float Value);
-    void LookAround(float Value);
+
+protected:
     void Dodge();
 
-public:
-    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-    USpringArmComponent* GetCameraBoom() const { return SpringArmComponent; }
-    UCameraComponent* GetFollowCamera() const { return CameraComponent; }
+public:
     USceneComponent* GetPullTarget() const {return PullTarget; }
 
     float GetMaxRunSpeed() const { return MaxRunSpeed; }
