@@ -2,13 +2,27 @@
 
 
 #include "UI/PCGameHUD.h"
+
+#include "PCBaseWidget.h"
 #include "Engine/Canvas.h"
+#include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Player/PCPlayerCharacter.h"
 
 void APCGameHUD::DrawHUD()
 {
     Super::DrawHUD();
     
     DrawCrossHair();
+}
+
+void APCGameHUD::BeginPlay()
+{
+    Super::BeginPlay();
+
+    const auto PlayerHUDWidget = CreateWidget<UPCBaseWidget>(GetWorld(), PlayerHUDWidgetClass);
+    PlayerHUDWidget->AddToViewport();
+    PlayerHUDWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void APCGameHUD::DrawCrossHair()

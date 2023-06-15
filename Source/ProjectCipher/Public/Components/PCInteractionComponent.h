@@ -7,6 +7,7 @@
 #include "PCInteractionComponent.generated.h"
 
 
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTCIPHER_API UPCInteractionComponent : public UActorComponent
 {
@@ -14,7 +15,7 @@ class PROJECTCIPHER_API UPCInteractionComponent : public UActorComponent
 
 public:
     UPCInteractionComponent();
-
+    
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interacion")
     bool MultiInteractable = false;

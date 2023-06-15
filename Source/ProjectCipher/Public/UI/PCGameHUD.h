@@ -27,8 +27,9 @@ protected:
     
 public:
     virtual void DrawHUD() override;
-    
+
+    virtual void BeginPlay() override;
 private:
     void DrawCrossHair();
-    
+    void OnInteract(bool Enable);
 };

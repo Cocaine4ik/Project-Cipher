@@ -4,14 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Player/PCCipherCharacter.h"
+#include "PCDelegates.h"
 #include "PCPlayerCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
 class UPCInteractionComponent;
-/**
- * 
- */
+
 UCLASS()
 class PROJECTCIPHER_API APCPlayerCharacter : public APCCipherCharacter
 {
@@ -20,6 +19,8 @@ class PROJECTCIPHER_API APCPlayerCharacter : public APCCipherCharacter
 public:
     APCPlayerCharacter(const FObjectInitializer& ObjInit);
 
+    FOnInteractSignature OnInteract;
+    
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     USpringArmComponent* SpringArmComponent;

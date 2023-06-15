@@ -120,13 +120,17 @@ void APCPlayerCharacter::DetectInteractableObject()
         if (NewInteractionComponent && NewInteractionComponent != CurrentInteractionComponent && !NewInteractionComponent->IsInteracted())
         {
             CurrentInteractionComponent = NewInteractionComponent;
-        } 
+            OnInteract.Broadcast(true);
+        }
+        /*
         if (CurrentInteractionComponent) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
             FString::Printf(TEXT("Interactable: %s"), *Result.GetActor()->GetName()));
+        */
         
     }
     else if (CurrentInteractionComponent)
     {
+        OnInteract.Broadcast(false);
         CurrentInteractionComponent = nullptr;
     }
 }
