@@ -17,6 +17,12 @@ public:
 protected:
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
     UPCBaseWidget* InteractionWidget;
+
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+    UPCBaseWidget* HealthProgressBar;
+
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+    UPCBaseWidget* PowerProgressBar;
     
 private:
     UFUNCTION()

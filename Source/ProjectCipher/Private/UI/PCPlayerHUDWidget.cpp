@@ -9,9 +9,12 @@
 void UPCPlayerHUDWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
-
-    InteractionWidget->AddToViewport();
+    
     InteractionWidget->SetVisibility(ESlateVisibility::Hidden);
+    
+    HealthProgressBar->SetVisibility(ESlateVisibility::Visible);
+    
+    PowerProgressBar->SetVisibility(ESlateVisibility::Visible);
     
     if(GetOwningPlayer())
     {
