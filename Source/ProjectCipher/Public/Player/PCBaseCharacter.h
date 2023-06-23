@@ -16,6 +16,8 @@ class APCBaseCharacter : public ACharacter
 public:
     APCBaseCharacter(const FObjectInitializer& ObjInit);
 
+    virtual void BeginPlay() override;
+    
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UPCHealthComponent* HealthComponent;
