@@ -4,9 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PCDelegates.h"
 #include "PCBaseAttributeComponent.generated.h"
-
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnValueChangeSignature, float, float)
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTCIPHER_API UPCBaseAttributeComponent : public UActorComponent
@@ -17,10 +16,10 @@ public:
     // Sets default values for this component's properties
     UPCBaseAttributeComponent(const FObjectInitializer& ObjInit);
 
-    FOnValueChangeSignature OnValueChanged;
+    FOnValueChangedSignature OnValueChanged;
     
     UFUNCTION(BlueprintCallable, Category = "Attribute")
-    float GetAttributePercent() const { return Value / MaxValue; }
+   float GetAttributePercent() const { return Value / MaxValue; }
 
     float GetValue() const { return Value; }
 

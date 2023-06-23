@@ -22,3 +22,11 @@ APCBaseCharacter::APCBaseCharacter(const FObjectInitializer& ObjInit)
     HealthComponent = CreateDefaultSubobject<UPCHealthComponent>(TEXT("HealthComponent"));
     
 }
+
+void APCBaseCharacter::BeginPlay()
+{
+    Super::BeginPlay();
+
+    check(HealthComponent);
+    
+}

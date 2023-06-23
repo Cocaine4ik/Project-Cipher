@@ -16,7 +16,8 @@ public class ProjectCipher : ModuleRules
 			"ProjectCipher/Public/Player",
 			"ProjectCipher/Public/Components",
 			"ProjectCipher/Public/Environment",
-			"ProjectCipher/Public/UI"
+			"ProjectCipher/Public/UI",
+			"ProjectCipher/Public/Dev"
 		});
 	}
 }

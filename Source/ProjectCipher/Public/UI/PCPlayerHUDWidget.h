@@ -6,6 +6,8 @@
 #include "UI/PCBaseWidget.h"
 #include "PCPlayerHUDWidget.generated.h"
 
+class UPCAttributeBarWidget;
+
 UCLASS()
 class PROJECTCIPHER_API UPCPlayerHUDWidget : public UPCBaseWidget
 {
@@ -21,4 +23,10 @@ protected:
 private:
     UFUNCTION()
     void OnInteract(bool bEnable);
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetHealthPercent() const;
+    
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetPowerPercent() const;
 };
