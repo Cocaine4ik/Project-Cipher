@@ -10,6 +10,8 @@
 class APCTelekineticProp;
 class USpringArmComponent;
 class UCharacterMovementComponent;
+class UPCHealthComponent;
+class UPCPowerComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTCIPHER_API UPCTelekinesisComponent : public UActorComponent
@@ -72,6 +74,8 @@ public:
 private:
     USpringArmComponent* SpringArmComponent;
     UCharacterMovementComponent* CharacterMovementComponent;
+    UPCHealthComponent* HealthComponent;
+    UPCPowerComponent* PowerComponent;
     
     bool bTelekinesis = false;
     bool bCanPush = false;

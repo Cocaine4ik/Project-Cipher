@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/PCBaseAttributeComponent.h"
+#include "PCDelegates.h"
 #include "PCHealthComponent.generated.h"
 
 class UCameraShakeBase;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 
 UCLASS()
 class PROJECTCIPHER_API UPCHealthComponent : public UPCBaseAttributeComponent
@@ -19,6 +18,7 @@ public:
     UPCHealthComponent(const FObjectInitializer& ObjInit);
 
     FOnDeathSignature OnDeath;
+    FOnTakeDamageSignature OnTakeDamage;
     
     UFUNCTION(BlueprintCallable, Category = "Health")
     bool IsDead() const { return Value <= 0.0f; }

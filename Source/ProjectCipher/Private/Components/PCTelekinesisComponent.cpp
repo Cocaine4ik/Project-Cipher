@@ -8,6 +8,8 @@
 #include "Environment/PCTelekineticProp.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/PCHealthComponent.h"
+#include "Components/PCPowerComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTelekinesisComponent, All, All)
 
@@ -41,7 +43,9 @@ void UPCTelekinesisComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UPCTelekinesisComponent::Telekinesis()
 {
-    if (!bTelekinesis && !bCanPush)
+    if (HealthComponent->IsDead()) return;
+    
+    if (!bTelekinesis && !bCanPush )
     {
         Pull(); 
     }

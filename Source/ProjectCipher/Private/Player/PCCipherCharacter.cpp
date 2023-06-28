@@ -1,6 +1,8 @@
 // Project Cipher. All Rights Reserved.
 
 #include "Player/PCCipherCharacter.h"
+
+#include "PCHealthComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/PCTelekinesisComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -38,7 +40,7 @@ APCCipherCharacter::APCCipherCharacter(const FObjectInitializer& ObjInit) : Supe
 void APCCipherCharacter::Dodge()
 {
 
-    if (TelekinesisComponent->IsTelekinesis() || !DodgeAnimation || !bCanDodge) return;
+    if (TelekinesisComponent->IsTelekinesis() || !DodgeAnimation || !bCanDodge || HealthComponent->IsDead()) return;
     bCanDodge = false;
     PlayAnimMontage(DodgeAnimation);
 
