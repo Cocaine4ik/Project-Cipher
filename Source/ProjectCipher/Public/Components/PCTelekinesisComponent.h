@@ -55,6 +55,12 @@ protected:
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
     TArray<TEnumAsByte<EObjectTypeQuery>> DetectionObjectTypes;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Power")
+    float PullCost = 10.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Power")
+    float PushCost = 20.0f;
     
     UFUNCTION(BlueprintCallable)
     void SetTelekinesis(bool Value) { bTelekinesis = Value; }

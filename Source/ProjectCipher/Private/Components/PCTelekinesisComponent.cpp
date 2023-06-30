@@ -30,6 +30,12 @@ void UPCTelekinesisComponent::BeginPlay()
 
     CharacterMovementComponent = Cast<UCharacterMovementComponent>(
     GetOwner()->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
+
+    HealthComponent = Cast<UPCHealthComponent>(
+        GetOwner()->GetComponentByClass(UPCHealthComponent::StaticClass()));
+    
+    PowerComponent = Cast<UPCPowerComponent>(
+        GetOwner()->GetComponentByClass(UPCPowerComponent::StaticClass()));
 }
 
 
@@ -109,10 +115,13 @@ void UPCTelekinesisComponent::ZoomUpdate()
 
 void UPCTelekinesisComponent::Pull()
 {
-    if (!GetCipherCharacter() || !DetectedProp)
+    if (!GetCipherCharacter() || !DetectedProp || !PowerComponent || PowerComponent->GetValue() < PullCost)
     {
         return;
     }
+
+    PowerComponent->TryToUsePower(PullCost);
+    
     DefaultSpeed = GetCipherCharacter()->GetMaxRunSpeed();
     CharacterMovementComponent->MaxWalkSpeed = GetCipherCharacter()->GetMaxWalkSpeed();
     
@@ -126,11 +135,13 @@ void UPCTelekinesisComponent::Pull()
 
 void UPCTelekinesisComponent::Push()
 {
-    if (!bTelekinesis || !GetCipherCharacter() || !GetWorld())
+    if (!bTelekinesis || !GetCipherCharacter() || !GetWorld() || !PowerComponent ||PowerComponent->GetValue() < PushCost)
     {
         return;
     }
 
+    PowerComponent->TryToUsePower(PushCost);
+    
     Zoom(false);
     
     FHitResult Result;
