@@ -14,4 +14,6 @@ class PROJECTCIPHER_API UPCPowerComponent : public UPCBaseAttributeComponent
 {
     GENERATED_BODY()
 
+public:
+    bool TryToUsePower(float PowerAmount);
 };

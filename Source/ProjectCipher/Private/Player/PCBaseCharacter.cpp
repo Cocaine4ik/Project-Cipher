@@ -28,5 +28,24 @@ void APCBaseCharacter::BeginPlay()
     Super::BeginPlay();
 
     check(HealthComponent);
+
+    HealthComponent->OnDeath.AddUObject(this, &APCBaseCharacter::OnDeath);
+    HealthComponent->OnTakeDamage.AddUObject(this, &APCBaseCharacter::OnTakeDamage);
     
+}
+
+void APCBaseCharacter::OnDeath()
+{
+    PlayAnimMontage(DeathAnimation);
+
+    GetCharacterMovement()->DisableMovement();
+        
+}
+
+void APCBaseCharacter::OnTakeDamage()
+{
+    if (!GetMesh()->GetAnimInstance()->Montage_IsPlaying(TakeDamageAnimation))
+    {
+        PlayAnimMontage(TakeDamageAnimation);
+    }
 }

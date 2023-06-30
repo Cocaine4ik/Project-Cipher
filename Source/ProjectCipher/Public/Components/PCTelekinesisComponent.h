@@ -10,6 +10,8 @@
 class APCTelekineticProp;
 class USpringArmComponent;
 class UCharacterMovementComponent;
+class UPCHealthComponent;
+class UPCPowerComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTCIPHER_API UPCTelekinesisComponent : public UActorComponent
@@ -53,6 +55,12 @@ protected:
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Telekinesis")
     TArray<TEnumAsByte<EObjectTypeQuery>> DetectionObjectTypes;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Power")
+    float PullCost = 10.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Power")
+    float PushCost = 20.0f;
     
     UFUNCTION(BlueprintCallable)
     void SetTelekinesis(bool Value) { bTelekinesis = Value; }
@@ -72,6 +80,8 @@ public:
 private:
     USpringArmComponent* SpringArmComponent;
     UCharacterMovementComponent* CharacterMovementComponent;
+    UPCHealthComponent* HealthComponent;
+    UPCPowerComponent* PowerComponent;
     
     bool bTelekinesis = false;
     bool bCanPush = false;

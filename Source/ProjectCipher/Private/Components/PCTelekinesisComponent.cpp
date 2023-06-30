@@ -8,6 +8,8 @@
 #include "Environment/PCTelekineticProp.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/PCHealthComponent.h"
+#include "Components/PCPowerComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTelekinesisComponent, All, All)
 
@@ -28,6 +30,12 @@ void UPCTelekinesisComponent::BeginPlay()
 
     CharacterMovementComponent = Cast<UCharacterMovementComponent>(
     GetOwner()->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
+
+    HealthComponent = Cast<UPCHealthComponent>(
+        GetOwner()->GetComponentByClass(UPCHealthComponent::StaticClass()));
+    
+    PowerComponent = Cast<UPCPowerComponent>(
+        GetOwner()->GetComponentByClass(UPCPowerComponent::StaticClass()));
 }
 
 
@@ -41,7 +49,9 @@ void UPCTelekinesisComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UPCTelekinesisComponent::Telekinesis()
 {
-    if (!bTelekinesis && !bCanPush)
+    if (HealthComponent->IsDead()) return;
+    
+    if (!bTelekinesis && !bCanPush )
     {
         Pull(); 
     }
@@ -105,10 +115,13 @@ void UPCTelekinesisComponent::ZoomUpdate()
 
 void UPCTelekinesisComponent::Pull()
 {
-    if (!GetCipherCharacter() || !DetectedProp)
+    if (!GetCipherCharacter() || !DetectedProp || !PowerComponent || PowerComponent->GetValue() < PullCost)
     {
         return;
     }
+
+    PowerComponent->TryToUsePower(PullCost);
+    
     DefaultSpeed = GetCipherCharacter()->GetMaxRunSpeed();
     CharacterMovementComponent->MaxWalkSpeed = GetCipherCharacter()->GetMaxWalkSpeed();
     
@@ -122,11 +135,13 @@ void UPCTelekinesisComponent::Pull()
 
 void UPCTelekinesisComponent::Push()
 {
-    if (!bTelekinesis || !GetCipherCharacter() || !GetWorld())
+    if (!bTelekinesis || !GetCipherCharacter() || !GetWorld() || !PowerComponent ||PowerComponent->GetValue() < PushCost)
     {
         return;
     }
 
+    PowerComponent->TryToUsePower(PushCost);
+    
     Zoom(false);
     
     FHitResult Result;

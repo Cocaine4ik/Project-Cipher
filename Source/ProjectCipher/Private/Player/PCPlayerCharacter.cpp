@@ -1,6 +1,8 @@
 // Project Cipher. All Rights Reserved.
 
 #include "Player/PCPlayerCharacter.h"
+
+#include "PCHealthComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
@@ -90,7 +92,7 @@ void APCPlayerCharacter::LookAround(float Value)
 
 void APCPlayerCharacter::Interact()
 {
-    if (TelekinesisComponent->IsTelekinesis()) return;
+    if (TelekinesisComponent->IsTelekinesis() || HealthComponent->IsDead()) return;
     
     if (CurrentInteractionComponent && !CurrentInteractionComponent->IsInteracted())
     {

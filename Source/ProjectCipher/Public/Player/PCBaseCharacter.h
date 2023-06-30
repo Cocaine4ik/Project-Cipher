@@ -21,4 +21,14 @@ public:
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UPCHealthComponent* HealthComponent;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* DeathAnimation;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* TakeDamageAnimation;
+
+private:
+    void OnDeath();
+    void OnTakeDamage();
 };

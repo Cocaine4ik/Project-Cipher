@@ -30,6 +30,13 @@ void UPCHealthComponent::ApplyDamage(float Damage)
 
     SetValue(Value - Damage);
 
+    if (!IsDead())
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
+    FString::Printf(TEXT("TakeDamage: %f"), Damage));
+        OnTakeDamage.Broadcast();
+    }
+    
     GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
         FString::Printf(TEXT("Health: %f"), Value));
 
