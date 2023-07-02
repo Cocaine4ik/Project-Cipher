@@ -9,7 +9,13 @@ bool UPCPowerComponent::TryToUsePower(float PowerAmount)
 
     SetValue(Value - PowerAmount);
 
-    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Magenta,
-    FString::Printf(TEXT("Power Value: %f"), Value));
+    GetWorld()->GetTimerManager().ClearTimer(AutoRestorationTimerHandle);
+    
+    if (bAutoRestoration && GetWorld())
+    {
+        GetWorld()->GetTimerManager().SetTimer(AutoRestorationTimerHandle, this, &UPCPowerComponent::AutoRestorationUpdate,
+            RestorationUpdateTime, true, RestorationDelay);
+    }
+
     return true;
 }

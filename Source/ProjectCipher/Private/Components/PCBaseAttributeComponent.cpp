@@ -37,6 +37,12 @@ void UPCBaseAttributeComponent::SetValue(const float NewValue)
 
 void UPCBaseAttributeComponent::AutoRestorationUpdate()
 {
+    SetValue(Value + RestorationModifier);
+
+    if(IsValueFull() && GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(AutoRestorationTimerHandle);
+    }
 }
 
 
